@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+
+using Newtonsoft.Json;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -40,6 +43,7 @@ namespace TheGateQuest.Bot
 
         private async void Bot_OnMessage(object sender, MessageEventArgs messageEventArgs)
         {
+            System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager));
             var chatId = messageEventArgs.Message.Chat.Id;
             if (chatId == _questMasterChatId)
                 ;//here we should return later;
@@ -141,6 +145,7 @@ namespace TheGateQuest.Bot
 
         private async void Bot_OnCallbackQuery(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
         {
+            System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager));
             var chatId = callbackQueryEventArgs.CallbackQuery.Message.Chat.Id;
             if (_dataManager.IsTeamFinishedForUser(chatId))
             {
