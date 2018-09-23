@@ -4,7 +4,7 @@ namespace TheGateQuest.DataManagement.Telegram
 {
     public static class KeyboardLayoutsStorage
     {
-        public static InlineKeyboardMarkup GetActionSelectReplyMarkup()
+        public static InlineKeyboardMarkup GetHintReplyMarkup()
         => new[]
         {
             InlineKeyboardButton.WithCallbackData("Нова підказка до поточної локації", $"Action: askHint"),

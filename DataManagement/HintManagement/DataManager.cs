@@ -93,6 +93,7 @@ namespace TheGateQuest.DataManagement.HintManagement
             if (_chatToTeamMapping.ContainsKey(chatId))
                 return _data.Teams[_chatToTeamMapping[chatId]];
 
+            phoneNumber = Team.PreprocessPhoneNumber(phoneNumber);
             if (string.IsNullOrEmpty(phoneNumber))
                 return null;
 

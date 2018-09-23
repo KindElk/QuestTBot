@@ -32,14 +32,17 @@ namespace TheGateQuest.DataModels.Quest
         {
             for (int i = 0; i < Members.Count; ++i)
             {
-                Members[i] = Members[i].Replace("+", "");
-                Members[i] = Members[i].Replace("-", "");
-                Members[i] = Members[i].Replace("(", "");
-                Members[i] = Members[i].Replace(")", "");
-                Members[i] = Members[i].Replace(" ", "");
-                if (!string.IsNullOrEmpty(Members[i]))
-                    Members[i] = "+" + Members[i];
+                Members[i] = PreprocessPhoneNumber(Members[i]);
             }
+        }
+
+        public static Phone PreprocessPhoneNumber(Phone phone)
+        {
+            return "+" + phone.Replace("+", "")
+                              .Replace("-", "")
+                              .Replace("(", "")
+                              .Replace(")", "")
+                              .Replace(" ", "");
         }
     }
 }

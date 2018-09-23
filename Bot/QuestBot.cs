@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using TheGateQuest.DataManagement.HintManagement;
 using TheGateQuest.DataManagement.Telegram;
@@ -89,9 +91,8 @@ namespace TheGateQuest.Bot
         private void _OnFirstContact(MessageEventArgs messageEventArgs)
         {
 #pragma warning disable CS4014
-            SendTextMessageAsync(messageEventArgs.Message.Chat.Id,
-                "Вітаю! Для визначення команди надішліть, будь ласка, ваші контактні дані.",
-                replyMarkup: KeyboardLayoutsStorage.GetRequestContactReplyMarkup());
+            SendMessageWithSendContactButtons(messageEventArgs.Message.Chat.Id,
+                "Вітаю! Для визначення команди надішліть, будь ласка, ваші контактні дані.");
 #pragma warning restore CS4014
         }
 
@@ -126,17 +127,15 @@ namespace TheGateQuest.Bot
 #pragma warning disable CS4014
             if (!String.IsNullOrEmpty(teamName))
             {
-                SendTextMessageAsync(chatId,
+                SendMessageWithHintButtons(chatId,
                     $"Вітаю, {userName} з команди {teamName}! " +
-                    $"Для того, щоб отримати підказку, натисніть кнопку знизу.",
-                    replyMarkup: KeyboardLayoutsStorage.GetActionSelectReplyMarkup());
+                    $"Для того, щоб отримати підказку, натисніть кнопку знизу.");
             }
             else
             {
-                SendTextMessageAsync(chatId,
+                SendMessageWithSendContactButtons(chatId,
                     "Не можу визначити вашу команду. Будь ласка, " +
-                    "перевірте, чи ви зареєстровані за цим номером.",
-                    replyMarkup: KeyboardLayoutsStorage.GetRequestContactReplyMarkup());
+                    "перевірте, чи ви зареєстровані за цим номером.");
             }
 #pragma warning restore CS4014
         }
@@ -167,11 +166,11 @@ namespace TheGateQuest.Bot
             {
                 case "askHint":
                     var hint = _dataManager.AskNewHintFor(chatId);
-                    SendTextMessageAsync(chatId, hint);
+                    SendMessageWithHintButtons(chatId, hint);
                     break;
                 case "replayHint":
                     var allHints = _dataManager.GetOldHintsFor(chatId);
-                    SendTextMessageAsync(chatId, allHints);
+                    SendMessageWithHintButtons(chatId, allHints);
                     break;
                 default:
                     Console.WriteLine("Unhandled Action type." + callbackData[1]);
@@ -198,9 +197,20 @@ namespace TheGateQuest.Bot
             if (isAnswerCorrect)
             {
                 var newTask = _dataManager.UpdateTeamProgress(teamChatId);
-                SendTextMessageAsync(teamChatId, newTask,
-                    replyMarkup: KeyboardLayoutsStorage.GetActionSelectReplyMarkup());
+                SendMessageWithHintButtons(teamChatId, newTask);
             }
+        }
+
+        private Task<Message> SendMessageWithHintButtons(long chatId, string message)
+        {
+            return SendTextMessageAsync(chatId, message,
+                    replyMarkup: KeyboardLayoutsStorage.GetHintReplyMarkup());
+        }
+
+        private Task<Message> SendMessageWithSendContactButtons(long chatId, string message)
+        {
+            return SendTextMessageAsync(chatId, message,
+                    replyMarkup: KeyboardLayoutsStorage.GetRequestContactReplyMarkup());
         }
     }
 }
