@@ -43,7 +43,7 @@ namespace TheGateQuest.Bot
 
         private async void Bot_OnMessage(object sender, MessageEventArgs messageEventArgs)
         {
-            System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager));
+            System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager, Formatting.Indented));
             var chatId = messageEventArgs.Message.Chat.Id;
             if (chatId == _questMasterChatId)
                 ;//here we should return later;
@@ -145,7 +145,7 @@ namespace TheGateQuest.Bot
 
         private async void Bot_OnCallbackQuery(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
         {
-            System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager));
+            System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager, Formatting.Indented));
             var chatId = callbackQueryEventArgs.CallbackQuery.Message.Chat.Id;
             if (_dataManager.IsTeamFinishedForUser(chatId))
             {

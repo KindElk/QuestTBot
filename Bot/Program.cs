@@ -22,7 +22,7 @@ namespace TheGateQuest.Bot
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Restoring from backup failed. Trying to start normaly.");
+                    Console.WriteLine("Restoring from backup failed. Trying to start normaly...");
                 }
             }
 
@@ -68,7 +68,7 @@ namespace TheGateQuest.Bot
                 Console.WriteLine(e.Message + "\n\n" + e.StackTrace);
                 Console.ReadLine();
             }
-            File.WriteAllText(backupFile, JsonConvert.SerializeObject(dataManagement));
+            File.WriteAllText(backupFile, JsonConvert.SerializeObject(dataManagement, Formatting.Indented));
         }
     }
 }
