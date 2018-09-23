@@ -42,7 +42,14 @@ namespace TheGateQuest.Bot
             if (chatId == _questMasterChatId)
                 ;//here we should return later;
 
-            Console.WriteLine(messageEventArgs.Message.Text);
+            if (_dataManager.IsTeamFinishedForUser(chatId))
+            {
+#pragma warning disable CS4014
+                SendTextMessageAsync(chatId, "Ви вже зачінчили квест.");
+#pragma warning restore CS4014
+                return;
+            }
+            //Console.WriteLine(messageEventArgs.Message.Text);
 
             var userName = GetChatAsync(chatId).Result.Username;
             var phone = messageEventArgs.Message.Contact?.PhoneNumber ?? string.Empty;
@@ -51,7 +58,7 @@ namespace TheGateQuest.Bot
             {
                 _questMasterChatId = chatId;
 #pragma warning disable CS4014
-                SendTextMessageAsync(messageEventArgs.Message.Chat.Id, "Вітаю, quest master!");
+                SendTextMessageAsync(chatId, "Вітаю, quest master!");
 #pragma warning restore CS4014
                 ;//here we should return later;
             }

@@ -29,12 +29,21 @@ namespace TheGateQuest.DataManagement.HintManagement
             _chatToTeamMapping = new Dictionary<ChatID, TeamID>();
         }
 
+        public bool IsTeamFinishedForUser(ChatID chatId)
+        {
+            var team = _GetTeamForUser(chatId);
+            if (null == team)
+                return false;
+
+            return team.CurrentLocationIndex == team.Route.Count;
+        }
+
         ///<summary>
         ///returns first unseen hint for current location as string.
         ///If all hints are taken, returns formatted combo of all hints for current location
         ///</summary>
         ///<param name="chatId">Used to indicate name of the team that asks for hint.</param>
-        public string AskNewHintFor(long chatId)
+        public string AskNewHintFor(ChatID chatId)
         {
             var team = _GetTeamForUser(chatId);
             var locationHint = _GetLocationHintFor(team);
@@ -57,7 +66,7 @@ namespace TheGateQuest.DataManagement.HintManagement
         ///If all hints are taken, returns formatted combo of all hints for current location
         ///</summary>
         ///<param name="chatId">Used to indicate name of the team that asks for hint.</param>
-        public string GetOldHintsFor(long chatId)
+        public string GetOldHintsFor(ChatID chatId)
         {
             var team = _GetTeamForUser(chatId);
             var locationHint = _GetLocationHintFor(team);
