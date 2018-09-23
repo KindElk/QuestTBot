@@ -21,7 +21,7 @@ namespace TheGateQuest.Bot
             DataManager dataManagement = new DataManager(questTeams, hints);
 
             bool correctAdmin = true;//false;
-            string adminUserName = ""; 
+            string adminUserName = File.ReadAllText("admin.txt"); 
             while (!correctAdmin)
             {
                 Console.Write("Please, enter admin username: ");

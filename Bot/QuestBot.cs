@@ -58,7 +58,7 @@ namespace TheGateQuest.Bot
 
             var teamName = _dataManager.GetTeamNameForUser(chatId);
             
-            if (String.IsNullOrEmpty(teamName))
+            if (String.IsNullOrEmpty(teamName) && MessageType.Contact != messageEventArgs.Message.Type)
             {
                 _OnFirstContact(messageEventArgs);
                 return;
@@ -187,7 +187,8 @@ namespace TheGateQuest.Bot
             if (isAnswerCorrect)
             {
                 var newTask = _dataManager.UpdateTeamProgress(teamChatId);
-                SendTextMessageAsync(teamChatId, newTask);
+                SendTextMessageAsync(teamChatId, newTask,
+                    replyMarkup: KeyboardLayoutsStorage.GetActionSelectReplyMarkup());
             }
         }
     }

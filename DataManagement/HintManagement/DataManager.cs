@@ -42,7 +42,7 @@ namespace TheGateQuest.DataManagement.HintManagement
                 return _internalError + "No team or hint found for you.";
 
             var hintIndex = team.Route[team.CurrentLocationIndex].HintsCounter;
-            if (hintIndex < locationHint.Hints.Count)
+            if (hintIndex + 1 < locationHint.Hints.Count)
             {
                 ++team.Route[team.CurrentLocationIndex].HintsCounter;
                 ++locationHint.HintsTaken;
@@ -106,13 +106,13 @@ namespace TheGateQuest.DataManagement.HintManagement
         public string UpdateTeamProgress(ChatID chatId)
         {
             var team = _GetTeamForUser(chatId);
-            var locationHint = _GetLocationHintFor(team);
             if (null == team)
                 return _internalError + "No team found for you.";
 
             if (++team.CurrentLocationIndex == team.Route.Count)
                 return "Quest finished! Congratulations!";
 
+            var locationHint = _GetLocationHintFor(team);
             if (null != locationHint)
                 return locationHint.Hints[0];
 
