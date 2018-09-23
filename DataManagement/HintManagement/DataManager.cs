@@ -34,7 +34,7 @@ namespace TheGateQuest.DataManagement.HintManagement
         ///If all hints are taken, returns formatted combo of all hints for current location
         ///</summary>
         ///<param name="chatId">Used to indicate name of the team that asks for hint.</param>
-        public string AskHintFor(long chatId)
+        public string AskNewHintFor(long chatId)
         {
             var team = _GetTeamForUser(chatId);
             var locationHint = _GetLocationHintFor(team);
@@ -42,27 +42,41 @@ namespace TheGateQuest.DataManagement.HintManagement
                 return _internalError + "No team or hint found for you.";
 
             var hintIndex = team.Route[team.CurrentLocationIndex].HintsCounter;
-            if (hintIndex + 1 < locationHint.Hints.Count)
+            if (hintIndex < locationHint.Hints.Count - 1) //hints also include main questio
             {
                 ++team.Route[team.CurrentLocationIndex].HintsCounter;
                 ++locationHint.HintsTaken;
                 return locationHint.Hints[hintIndex + 1];
             }
             else
+                return GetOldHintsFor(chatId);
+        }
+
+        ///<summary>
+        ///returns all hints given before for current location as string.
+        ///If all hints are taken, returns formatted combo of all hints for current location
+        ///</summary>
+        ///<param name="chatId">Used to indicate name of the team that asks for hint.</param>
+        public string GetOldHintsFor(long chatId)
+        {
+            var team = _GetTeamForUser(chatId);
+            var locationHint = _GetLocationHintFor(team);
+            if (null == team || null == locationHint)
+                return _internalError + "No team or hint found for you.";
+
+            var hintIndex = team.Route[team.CurrentLocationIndex].HintsCounter;
+            string hintsCombo = "All hints:";
+            for (int i = 0; i < locationHint.Hints.Count && i <= hintIndex; ++i)
             {
-                string hintsCombo = "All hints:";
-                for(int i = 0; i < locationHint.Hints.Count; ++i)
-                {
-                    hintsCombo += $"\n#{i}: " + locationHint.Hints[i];
-                }
-                return hintsCombo;
+                hintsCombo += $"\n#{i}: " + locationHint.Hints[i];
             }
+            return hintsCombo;
         }
 
         ///<summary>
         ///returns name of the team that user belongs to
         ///</summary>
-        public string GetTeamNameForUser(long chatId, string phoneNumber = "") 
+        public string GetTeamNameForUser(ChatID chatId, string phoneNumber = "") 
             => _GetTeamForUser(chatId, phoneNumber)?.Name;
 
         private Team _GetTeamForUser(ChatID chatId, string phoneNumber = "")

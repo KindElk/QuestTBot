@@ -159,8 +159,12 @@ namespace TheGateQuest.Bot
             switch (callbackData[1])
             {
                 case "askHint":
-                    var hint = _dataManager.AskHintFor(chatId);
+                    var hint = _dataManager.AskNewHintFor(chatId);
                     SendTextMessageAsync(chatId, hint);
+                    break;
+                case "replayHint":
+                    var allHints = _dataManager.GetOldHintsFor(chatId);
+                    SendTextMessageAsync(chatId, allHints);
                     break;
                 default:
                     Console.WriteLine("Unhandled Action type." + callbackData[1]);
