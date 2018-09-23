@@ -35,7 +35,7 @@ namespace TheGateQuest.DataManagement.HintManagement
             if (null == team)
                 return false;
 
-            return team.CurrentLocationIndex == team.Route.Count;
+            return team.CurrentLocationIndex >= team.Route.Count;
         }
 
         ///<summary>
@@ -93,9 +93,9 @@ namespace TheGateQuest.DataManagement.HintManagement
             if (_chatToTeamMapping.ContainsKey(chatId))
                 return _data.Teams[_chatToTeamMapping[chatId]];
 
-            phoneNumber = Team.PreprocessPhoneNumber(phoneNumber);
             if (string.IsNullOrEmpty(phoneNumber))
                 return null;
+            phoneNumber = Team.PreprocessPhoneNumber(phoneNumber);
 
             var userTeam = _data.Teams?.SingleOrDefault(team => team.Members.Contains(phoneNumber));
             if (userTeam != null)
