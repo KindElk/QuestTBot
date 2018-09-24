@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
 
 using Newtonsoft.Json;
@@ -46,29 +45,30 @@ namespace TheGateQuest.Bot
             System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager, Formatting.Indented));
             var chatId = messageEventArgs.Message.Chat.Id;
             if (chatId == _questMasterChatId)
+                //return
                 ;//here we should return later;
 
             if (_dataManager.IsTeamFinishedForUser(chatId))
             {
 #pragma warning disable CS4014
-                SendTextMessageAsync(chatId, "Ви вже зачінчили квест.");
+                SendTextMessageAsync(chatId, "Ви вже закінчили квест.");
 #pragma warning restore CS4014
                 return;
             }
 
             var userName = GetChatAsync(chatId).Result.Username;
-            var phone = messageEventArgs.Message.Contact?.PhoneNumber ?? string.Empty;
 
             if (null == _questMasterChatId && userName == _masterUserName)
             {
                 _questMasterChatId = chatId;
 #pragma warning disable CS4014
                 SendTextMessageAsync(chatId, "Вітаю, quest master!");
+                SendAdminActionMessageAsync(chatId,
+                    "Щоб отримати статистику по кількості підказок для кожної команди, натисніть кнопку");//here we should return later;
 #pragma warning restore CS4014
-                ;//here we should return later;
             }
 
-            var teamName = _dataManager.GetTeamNameForUser(chatId);
+                var teamName = _dataManager.GetTeamNameForUser(chatId);
             
             if (String.IsNullOrEmpty(teamName) && MessageType.Contact != messageEventArgs.Message.Type)
             {
@@ -101,8 +101,10 @@ namespace TheGateQuest.Bot
 
         private void _OnPhotoSent(MessageEventArgs messageEventArgs, string teamName)
         {
-            var chatId = messageEventArgs.Message.Chat.Id;
-            var userName = GetChatAsync(chatId).Result.Username;
+            var chat = messageEventArgs.Message.Chat;
+            var chatId = chat.Id;
+            var firstName = chat.FirstName;
+            var lastName = chat.LastName;
             var messageId = messageEventArgs.Message.MessageId;
             var currentLocation = _dataManager.GetLocationNameFor(chatId);
             var currentLocationIndex = _dataManager.GetLocationIndexFor(chatId);
@@ -110,7 +112,7 @@ namespace TheGateQuest.Bot
             ForwardMessageAsync(_questMasterChatId, chatId, messageEventArgs.Message.MessageId).Wait();
 #pragma warning disable CS4014
             SendTextMessageAsync(_questMasterChatId,
-                $"{userName} ({teamName}) надсилає фото до загадки для {currentLocation}",
+                $"{firstName} {lastName} ({teamName}) надсилає фото до загадки для {currentLocation}",
                 replyMarkup: KeyboardLayoutsStorage.GetAnswerVerificationReplyMarkup(chatId, messageId, currentLocationIndex));
             SendTextMessageAsync(chatId, "Відповідь прийнято.");
 #pragma warning restore CS4014
@@ -122,7 +124,6 @@ namespace TheGateQuest.Bot
                 return;
 
             var chatId = messageEventArgs.Message.Chat.Id;
-            var userName = GetChatAsync(chatId).Result.Username;
             var phone = messageEventArgs.Message.Contact?.PhoneNumber ?? string.Empty;
 
             teamName = _dataManager.GetTeamNameForUser(chatId, phone);
@@ -131,8 +132,8 @@ namespace TheGateQuest.Bot
             if (!String.IsNullOrEmpty(teamName))
             {
                 SendMessageWithHintButtons(chatId,
-                    $"Вітаю, {userName} з команди {teamName}! " +
-                    $"Для того, щоб отримати підказку, натисніть кнопку знизу.");
+                    $"Вітаю, ви з команди {teamName}! " +
+                    "Для того, щоб отримати підказку, натисніть кнопку знизу.");
             }
             else
             {
@@ -145,12 +146,11 @@ namespace TheGateQuest.Bot
 
         private async void Bot_OnCallbackQuery(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
         {
-            System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager, Formatting.Indented));
             var chatId = callbackQueryEventArgs.CallbackQuery.Message.Chat.Id;
             if (_dataManager.IsTeamFinishedForUser(chatId))
             {
 #pragma warning disable CS4014
-                SendTextMessageAsync(chatId, "Ви вже зачінчили квест.");
+                SendTextMessageAsync(chatId, "Ви вже закінчили квест.");
 #pragma warning restore CS4014
                 return;
             }
@@ -164,10 +164,21 @@ namespace TheGateQuest.Bot
                 case "Verification:":
                     _OnCallbackVerification(callbackQueryEventArgs, callbackData);
                     break;
+                case "Stats":
+                    _OnStatsRequest();
+                    break;
                 default:
                     Console.WriteLine("Unhandled callback message.");
                     break;
             }
+            System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager, Formatting.Indented));
+        }
+
+        private void _OnStatsRequest()
+        {
+            var hintStats = string.Join("\n",_dataManager.GetHintStats());
+            SendTextMessageAsync(_questMasterChatId, hintStats,
+                    replyMarkup: KeyboardLayoutsStorage.GetDefaultKeyboard());
         }
 
         private void _OnCallbackAction(CallbackQueryEventArgs callbackQueryEventArgs, string[] callbackData)
@@ -208,20 +219,23 @@ namespace TheGateQuest.Bot
             if (isAnswerCorrect)
             {
                 var newTask = _dataManager.UpdateTeamProgress(teamChatId);
-                SendMessageWithHintButtons(teamChatId, newTask);
+                if (newTask.actionsAvailable)
+                    SendMessageWithHintButtons(teamChatId, newTask.text);
+                else SendTextMessageAsync(teamChatId, newTask.text);
             }
         }
 
         private Task<Message> SendMessageWithHintButtons(long chatId, string message)
-        {
-            return SendTextMessageAsync(chatId, message,
+            => SendTextMessageAsync(chatId, message,
                     replyMarkup: KeyboardLayoutsStorage.GetHintReplyMarkup());
-        }
 
         private Task<Message> SendMessageWithSendContactButtons(long chatId, string message)
-        {
-            return SendTextMessageAsync(chatId, message,
+            => SendTextMessageAsync(chatId, message,
                     replyMarkup: KeyboardLayoutsStorage.GetRequestContactReplyMarkup());
-        }
+
+        private Task<Message> SendAdminActionMessageAsync(long chatId, string message)
+            => SendTextMessageAsync(chatId, message,
+                replyMarkup: KeyboardLayoutsStorage.GetAdminActionReplyMarkup());
+
     }
 }

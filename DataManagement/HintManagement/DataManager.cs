@@ -5,15 +5,16 @@ using TheGateQuest.DataModels.Quest;
 
 namespace TheGateQuest.DataManagement.HintManagement
 {
+    using System;
     using ChatID = System.Int64;
     using TeamID = System.Int32;
 
     public class DataManager
     {
         private static readonly string _internalError =
-            "500: Internal server error." +
-            "Please, contact quest master or development team. " +
-            "Error details: DataManager. ";
+            "500: Internal server error. " +
+            "Будь ласка, зверніться до організаторів. " +
+            "Деталі помилки: DataManager. ";
 
         [JsonProperty("teamsData")]
         private QuestTeamsMap _data;
@@ -48,10 +49,10 @@ namespace TheGateQuest.DataManagement.HintManagement
             var team = _GetTeamForUser(chatId);
             var locationHint = _GetLocationHintFor(team);
             if (null == team || null == locationHint)
-                return _internalError + "No team or hint found for you.";
+                return _internalError + "Немає підходящої підказки або команда невизначена.";
 
             var hintIndex = team.Route[team.CurrentLocationIndex].HintsCounter;
-            if (hintIndex < locationHint.Hints.Count - 1) //hints also include main questio
+            if (hintIndex < locationHint.Hints.Count - 1) //hints also include main question
             {
                 ++team.Route[team.CurrentLocationIndex].HintsCounter;
                 ++locationHint.HintsTaken;
@@ -66,18 +67,18 @@ namespace TheGateQuest.DataManagement.HintManagement
         ///If all hints are taken, returns formatted combo of all hints for current location
         ///</summary>
         ///<param name="chatId">Used to indicate name of the team that asks for hint.</param>
-        public string GetOldHintsFor(ChatID chatId)
+        public string GetOldHintsFor(ChatID chatId, Team team = null, LocationHint locationHint = null, int? hintIndex = null)
         {
-            var team = _GetTeamForUser(chatId);
-            var locationHint = _GetLocationHintFor(team);
+            team = team ?? _GetTeamForUser(chatId);
+            locationHint = locationHint ?? _GetLocationHintFor(team);
             if (null == team || null == locationHint)
-                return _internalError + "No team or hint found for you.";
+                return _internalError + "Немає підходящої підказки або команда невизначена.";
 
-            var hintIndex = team.Route[team.CurrentLocationIndex].HintsCounter;
-            string hintsCombo = "All hints:";
-            for (int i = 0; i < locationHint.Hints.Count && i <= hintIndex; ++i)
+            hintIndex = hintIndex ?? team.Route[team.CurrentLocationIndex].HintsCounter;
+            string hintsCombo = "Все, що маю для вас:";
+            for (int i = 0; i < locationHint.Hints.Count && i <= hintIndex.Value; ++i)
             {
-                hintsCombo += $"\n#{i}: " + locationHint.Hints[i];
+                hintsCombo += $"\n#{i}: {locationHint.Hints[i]}";
             }
             return hintsCombo;
         }
@@ -108,7 +109,7 @@ namespace TheGateQuest.DataManagement.HintManagement
         ///</summary>
         ///<param name = "chatId" > Used to indicate user whose location needs to be identified.</param>
         public string GetLocationNameFor(ChatID chatId)
-            => _GetLocationHintFor(_GetTeamForUser(chatId))?.Name;
+            => _GetLocationHintFor(_GetTeamForUser(chatId))?.LocationName;
 
         public int GetLocationIdFor(ChatID chatId)
             => _GetLocationIdFor(_GetTeamForUser(chatId));
@@ -127,20 +128,25 @@ namespace TheGateQuest.DataManagement.HintManagement
         /// </summary>
         /// <param name="chatId"> Used to specify which team stats should be updated</param>
         /// <returns></returns>
-        public string UpdateTeamProgress(ChatID chatId)
+        public (string text, bool actionsAvailable) UpdateTeamProgress(ChatID chatId)
         {
             var team = _GetTeamForUser(chatId);
             if (null == team)
-                return _internalError + "No team found for you.";
+                return (_internalError + "Rоманда невизначена.", false);
 
             if (++team.CurrentLocationIndex == team.Route.Count)
-                return "Quest finished! Congratulations!";
+                return ("Вітаю! Ви пройшли квест!", false);
 
             var locationHint = _GetLocationHintFor(team);
             if (null != locationHint)
-                return locationHint.Hints[0];
+                return (locationHint.Hints[0], true);
 
-            return _internalError + "No location found.";
+            return (_internalError + "Локацію не знайдено.", false);
         }
+
+        public List<string> GetHintStats()
+            => _data.Teams
+            .Select(team => $"команда {team.Name} всього взяла {team.Route.Sum(loc => loc.HintsCounter)} підказок")
+            .ToList();
     }
 }

@@ -18,13 +18,21 @@ namespace TheGateQuest.DataManagement.Telegram
             InlineKeyboardButton.WithCallbackData("-", $"Verification: false {chatId} {messageId} {locationId}")
         };
 
+        public static InlineKeyboardMarkup GetAdminActionReplyMarkup()
+        => new[]
+        {
+            InlineKeyboardButton.WithCallbackData("Статистика команд", "Stats")
+        };
+        public static ReplyKeyboardRemove GetDefaultKeyboard()
+        => new ReplyKeyboardRemove();
+
         public static ReplyKeyboardMarkup GetRequestContactReplyMarkup()
         {
             var replyKbdMarkup = new ReplyKeyboardMarkup(
             new[]
             {
                 KeyboardButton.WithRequestContact("Перевірити номер телефону")
-            });
+            }, oneTimeKeyboard: true);
             replyKbdMarkup.OneTimeKeyboard = true;
             return replyKbdMarkup;
         }

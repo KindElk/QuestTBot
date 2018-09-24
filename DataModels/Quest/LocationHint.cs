@@ -6,7 +6,7 @@ namespace TheGateQuest.DataModels.Quest
     public class LocationHint
     {
         [JsonProperty("name")]
-        public string Name;
+        public string LocationName;
 
         [JsonProperty("id")]
         public int Id;
