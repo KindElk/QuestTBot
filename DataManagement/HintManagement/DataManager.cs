@@ -59,7 +59,7 @@ namespace TheGateQuest.DataManagement.HintManagement
                 return locationHint.Hints[hintIndex + 1];
             }
             else
-                return GetOldHintsFor(chatId);
+                return _GetOldHintsFor(chatId, team, locationHint, hintIndex);
         }
 
         ///<summary>
@@ -75,6 +75,12 @@ namespace TheGateQuest.DataManagement.HintManagement
                 return _internalError + "Немає підходящої підказки або команда невизначена.";
 
             var hintIndex = team.Route[team.CurrentLocationIndex].HintsCounter;
+
+            return _GetOldHintsFor(chatId, team, locationHint, hintIndex);
+        }
+
+        public string _GetOldHintsFor(ChatID chatId, Team team = null, LocationHint locationHint = null, int? hintIndex = null)
+        {
             string hintsCombo = "Все, що маю для вас:";
             for (int i = 0; i < locationHint.Hints.Count && i <= hintIndex; ++i)
             {
