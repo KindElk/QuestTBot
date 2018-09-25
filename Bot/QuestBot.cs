@@ -221,7 +221,8 @@ namespace TheGateQuest.Bot
                 var newTask = _dataManager.UpdateTeamProgress(teamChatId);
                 if (newTask.actionsAvailable)
                     SendMessageWithHintButtons(teamChatId, newTask.text);
-                else SendTextMessageAsync(teamChatId, newTask.text);
+                else
+                    SendTextMessageAsync(teamChatId, newTask.text);
             }
         }
 
@@ -236,6 +237,5 @@ namespace TheGateQuest.Bot
         private Task<Message> SendAdminActionMessageAsync(long chatId, string message)
             => SendTextMessageAsync(chatId, message,
                 replyMarkup: KeyboardLayoutsStorage.GetAdminActionReplyMarkup());
-
     }
 }

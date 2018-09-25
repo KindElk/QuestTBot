@@ -67,16 +67,16 @@ namespace TheGateQuest.DataManagement.HintManagement
         ///If all hints are taken, returns formatted combo of all hints for current location
         ///</summary>
         ///<param name="chatId">Used to indicate name of the team that asks for hint.</param>
-        public string GetOldHintsFor(ChatID chatId, Team team = null, LocationHint locationHint = null, int? hintIndex = null)
+        public string GetOldHintsFor(ChatID chatId)
         {
-            team = team ?? _GetTeamForUser(chatId);
-            locationHint = locationHint ?? _GetLocationHintFor(team);
+            var team = _GetTeamForUser(chatId);
+            var locationHint = _GetLocationHintFor(team);
             if (null == team || null == locationHint)
                 return _internalError + "Немає підходящої підказки або команда невизначена.";
 
-            hintIndex = hintIndex ?? team.Route[team.CurrentLocationIndex].HintsCounter;
+            var hintIndex = team.Route[team.CurrentLocationIndex].HintsCounter;
             string hintsCombo = "Все, що маю для вас:";
-            for (int i = 0; i < locationHint.Hints.Count && i <= hintIndex.Value; ++i)
+            for (int i = 0; i < locationHint.Hints.Count && i <= hintIndex; ++i)
             {
                 hintsCombo += $"\n#{i}: {locationHint.Hints[i]}";
             }

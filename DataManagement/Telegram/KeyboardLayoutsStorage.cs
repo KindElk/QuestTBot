@@ -27,14 +27,10 @@ namespace TheGateQuest.DataManagement.Telegram
         => new ReplyKeyboardRemove();
 
         public static ReplyKeyboardMarkup GetRequestContactReplyMarkup()
-        {
-            var replyKbdMarkup = new ReplyKeyboardMarkup(
-            new[]
-            {
-                KeyboardButton.WithRequestContact("Перевірити номер телефону")
-            }, oneTimeKeyboard: true);
-            replyKbdMarkup.OneTimeKeyboard = true;
-            return replyKbdMarkup;
-        }
+            => new ReplyKeyboardMarkup(
+                    new[]
+                    {
+                        KeyboardButton.WithRequestContact("Перевірити номер телефону")
+                    }, oneTimeKeyboard: true);
     }
 }
