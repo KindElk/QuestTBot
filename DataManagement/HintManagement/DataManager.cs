@@ -84,7 +84,7 @@ namespace TheGateQuest.DataManagement.HintManagement
             string hintsCombo = "Все, що маю для вас:";
             for (int i = 0; i < locationHint.Hints.Count && i <= hintIndex; ++i)
             {
-                hintsCombo += $"\n#{i}: {locationHint.Hints[i]}";
+                hintsCombo += $"\n#{i}:\n{locationHint.Hints[i]}";
             }
             return hintsCombo;
         }
