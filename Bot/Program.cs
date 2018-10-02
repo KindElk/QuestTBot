@@ -39,9 +39,8 @@ namespace TheGateQuest.Bot
 
         private static string _ReadAdminUserName(bool fromFile)
         {
-            bool correctAdmin = fromFile;
-            string adminUserName = fromFile && File.Exists("admin.txt")
-                ? File.ReadAllText("admin.txt") : "";
+            bool correctAdmin = fromFile && File.Exists("admin.txt");
+            string adminUserName = fromFile ? File.ReadAllText("admin.txt") : "";
             while (!correctAdmin)
             {
                 Console.Write("Please, enter admin username: ");
