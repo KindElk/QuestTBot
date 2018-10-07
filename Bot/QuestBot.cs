@@ -45,8 +45,7 @@ namespace TheGateQuest.Bot
             System.IO.File.WriteAllText("dataManager.json", JsonConvert.SerializeObject(_dataManager, Formatting.Indented));
             var chatId = messageEventArgs.Message.Chat.Id;
             if (chatId == _questMasterChatId)
-                //return
-                ;//here we should return later;
+                return;
 
             if (_dataManager.IsTeamFinishedForUser(chatId))
             {
